@@ -192,6 +192,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "allure-pytest" },
+    { name = "allure-python-commons" },
     { name = "json-schema" },
     { name = "pytest" },
     { name = "requests" },
@@ -200,6 +201,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "allure-pytest", specifier = ">=2.16.2" },
+    { name = "allure-python-commons", specifier = ">=2.16.2" },
     { name = "json-schema", specifier = ">=0.3" },
     { name = "pytest", specifier = ">=9.1.1" },
     { name = "requests", specifier = ">=2.34.2" },
