@@ -5,6 +5,7 @@ import jsonschema
 
 BASE_URL = 'http://5.181.109.28:9090/api/v3'
 
+
 @allure.feature('Pet')
 class TestPet:
 
@@ -18,7 +19,6 @@ class TestPet:
 
         with allure.step("Проверка текстового содержимого ответа"):
             assert response.text == 'Pet deleted', 'Текст ответа не совпал с ожидаемым'
-
 
     @allure.title("Попытка обновить несуществующего питомца")
     def test_update_nonexistent_pet(self):
@@ -50,3 +50,14 @@ class TestPet:
             assert response_json['id'] == payload['id'], 'id не совпадает с ожидаемым'
             assert response_json['name'] == payload['name'], 'name не совпадает с ожидаемым'
             assert response_json['status'] == payload['status'], 'status не совпадает с ожидаемым'
+
+    @allure.title("Получение информации о питомце по ID")
+    def test_get_pet_by_id(self, create_pet):
+        with allure.step("Получение ID созданного питомца"):
+            pet_id = create_pet['id']
+        with allure.step("Отправка запроса на получение информации о питомце по ID"):
+            response = requests.get(f"{BASE_URL}/pet/{pet_id}")
+
+        with allure.step("Проверка статуса ответа и данных питомца"):
+            assert response.status_code == 200
+            assert response.json()['id'] == pet_id
