@@ -80,3 +80,21 @@ class TestPet:
             assert response_json['id'] == payload['id']
             assert response_json['name'] == payload['name']
             assert response_json['status'] == payload['status']
+
+    @allure.title("Удаление питомца по ID")
+    def test_delete_pet(self, create_pet):
+        with allure.step("Получение ID созданного питомца"):
+            pet_id = create_pet['id']
+        with allure.step("Отправление запроса на удаление питомца"):
+            r1 = requests.delete(f"{BASE_URL}/pet/{pet_id}")
+        with allure.step("Проверка статуса ответа"):
+            assert r1.status_code == 200
+        with allure.step("Отправка запроса на получение питомца"):
+            r2 = requests.get(f"{BASE_URL}/pet/{pet_id}")
+        with allure.step("Проверка статуса ответа"):
+            assert r2.status_code == 404
+
+
+
+
+
