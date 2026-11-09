@@ -1,10 +1,12 @@
+from urllib import response
+
 import allure
 import pytest
 import requests
 from tests.schemas.pet_schema import PET_SCHEMA
 import jsonschema
 
-BASE_URL = 'http://5.181.109.28:9090/api/v3'
+BASE_URL = 'https://petstore.swagger.rv-school.ru/api/v3'
 
 
 @allure.feature('Pet')
@@ -33,12 +35,13 @@ class TestPet:
         with allure.step("Проверка текстового содержимого ответа"):
             assert response.text == 'Pet not found', 'Текст ответа не совпал с ожидаемым'
 
-    @allure.title("Добавление нового питомца")
-    def test_add_new_pet(self):
+    @allure.title("Добавление нового питомца с минимальным набором полей")
+    def test_add_pet_min_fields(self):
         with allure.step("Подготовка данных для создания питомца"):
             payload = {
                 "id": 1,
                 "name": "Buddy",
+                "photoUrls": ["url"],
                 "status": "available"
             }
         with allure.step("Отправка запроса на создание питомца"):
@@ -50,7 +53,38 @@ class TestPet:
         with allure.step("Проверка параметров питомца в ответе"):
             assert response_json['id'] == payload['id'], 'id не совпадает с ожидаемым'
             assert response_json['name'] == payload['name'], 'name не совпадает с ожидаемым'
+            assert response_json['photoUrls'] == payload['photoUrls'], 'photoUrls не совпадает с ожидаемым'
             assert response_json['status'] == payload['status'], 'status не совпадает с ожидаемым'
+
+
+    @allure.title("Добавление питомца со всеми полями")
+    def test_add_pet_all_fields(self):
+        with allure.step("Подготовка данных для создания питомца"):
+            payload = {
+                "id": 5,
+                "name": 'Pavel',
+                "category": {
+                    "id": 1,
+                    "name": 'Cats'
+                },
+                "photoUrls": ['some/urls'],
+                "tags": [{
+                    "id": 2,
+                    "name": 'tag',
+                }],
+                "status": "available"
+            }
+        with allure.step("Отправка запроса на создание питомца"):
+            response = requests.post(f"{BASE_URL}/pet", json=payload)
+            response_json = response.json()
+        with allure.step("Проверка статуса и тела ответа"):
+            assert response.status_code == 200
+            assert response_json['id'] == payload['id']
+            assert response_json['name'] == payload['name']
+            assert response_json['category'] == payload['category']
+            assert response_json['photoUrls'] == payload['photoUrls']
+            assert response_json['tags'] == payload['tags']
+            assert response_json['status'] == payload['status']
 
     @allure.title("Получение информации о питомце по ID")
     def test_get_pet_by_id(self, create_pet):
