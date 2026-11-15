@@ -1,6 +1,7 @@
 from urllib import response
 
 import allure
+import pytest
 import requests
 from tests.schemas.pet_schema import PET_SCHEMA
 import jsonschema
@@ -127,3 +128,34 @@ class TestPet:
             r2 = requests.get(f"{BASE_URL}/pet/{pet_id}")
         with allure.step("Проверка статуса ответа"):
             assert r2.status_code == 404
+
+    @allure.title("Получение списка питомцев по статусу: позитивный")
+    @pytest.mark.parametrize(
+        "status, expected_status_code",
+        [
+            ("available", 200),
+            ('pending', 200),
+            ('sold', 200),
+        ]
+    )
+    def test_get_pets_by_status(self, status, expected_status_code):
+        with allure.step(f"Отправка запроса на получение питомцев по статусу {status}"):
+            response = requests.get(f"{BASE_URL}/pet/findByStatus", params={'status': status})
+        with allure.step("Проверка статуса ответа и формата данных"):
+            assert response.status_code == expected_status_code
+            assert isinstance(response.json(), list)
+
+    @allure.title("Получение списка питомцев по статусу: негативный")
+    @pytest.mark.parametrize(
+        "status, expected_status_code",
+        [
+            ('sex', 400),
+            ('', 400)
+        ]
+    )
+    def test_get_pets_by_status(self, status, expected_status_code):
+        with allure.step(f"Отправка запроса на получение питомцев по статусу {status}"):
+            response = requests.get(f"{BASE_URL}/pet/findByStatus", params={'status': status})
+        with allure.step("Проверка статуса ответа и формата данных"):
+            assert response.status_code == expected_status_code
+            assert isinstance(response.json(), dict)
